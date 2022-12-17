@@ -1,4 +1,4 @@
-package com.dvt.weatherapp
+package com.dvt.weatherapp.views
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
