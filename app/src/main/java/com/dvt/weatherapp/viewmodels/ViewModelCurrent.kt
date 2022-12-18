@@ -6,7 +6,7 @@ import com.dvt.weatherapp.room.entities.CurrentWeatherModel
 import kotlinx.coroutines.launch
 import java.lang.IllegalArgumentException
 
-class CurrentViewModel(private val repository: CurrentRoomRepository) : ViewModel() {
+class ViewModelCurrent(private val repository: CurrentRoomRepository) : ViewModel() {
     val getAllCurrentWeather: LiveData<CurrentWeatherModel> =
         repository.getAllCurrentWeather.asLiveData()
 
@@ -23,9 +23,9 @@ class CurrentViewModel(private val repository: CurrentRoomRepository) : ViewMode
 class CurrentViewModelFactory(private val repository: CurrentRoomRepository) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(CurrentViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(ViewModelCurrent::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return CurrentViewModel(repository) as T
+            return ViewModelCurrent(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -17,7 +17,7 @@ import com.dvt.weatherapp.utils.Constants
 import com.dvt.weatherapp.utils.ReusableUtils
 import com.dvt.weatherapp.viewmodels.ApiViewModel
 import com.dvt.weatherapp.viewmodels.ApiViewModelFactory
-import com.dvt.weatherapp.viewmodels.CurrentViewModel
+import com.dvt.weatherapp.viewmodels.ViewModelCurrent
 import com.dvt.weatherapp.viewmodels.CurrentViewModelFactory
 
 class HomeFragment : Fragment() {
@@ -32,7 +32,7 @@ class HomeFragment : Fragment() {
     }
 
     /** current room ViewModel */
-    private val currentViewModel: CurrentViewModel by viewModels {
+    private val viewModelCurrent: ViewModelCurrent by viewModels {
         CurrentViewModelFactory((requireActivity().applicationContext as BaseApplication).currentRepository)
     }
 
@@ -76,7 +76,7 @@ class HomeFragment : Fragment() {
 
     private fun loadCurrentFromRoom() {
         try {
-            currentViewModel.getAllCurrentWeather.observe(viewLifecycleOwner) { current ->
+            viewModelCurrent.getAllCurrentWeather.observe(viewLifecycleOwner) { current ->
                 current.let {
                     Log.d("loadCurrentFromRoom", "$it")
                     if (it != null) {
@@ -120,7 +120,7 @@ class HomeFragment : Fragment() {
                 if (response.isSuccessful) {
                     Log.d(TAG, "${response.body()}")
                     // Delete previous
-                    currentViewModel.deleteCurrentDetails()
+                    viewModelCurrent.deleteCurrentDetails()
                     insertCurrentToRoom(response.body())
                 } else {
                     Toast.makeText(requireContext(), "${response.body()?.message}", Toast.LENGTH_SHORT).show()
@@ -134,7 +134,7 @@ class HomeFragment : Fragment() {
     /** Insert Current Weather */
     private fun insertCurrentToRoom(body: CurrentResponseModel?) {
         try {
-            currentViewModel.insert(
+            viewModelCurrent.insert(
                 CurrentWeatherModel(
                     null,
                     body?.name,
