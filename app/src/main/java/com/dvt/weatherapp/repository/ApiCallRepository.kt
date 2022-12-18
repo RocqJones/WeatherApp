@@ -9,12 +9,20 @@ import retrofit2.Response
 class ApiCallRepository {
 
     suspend fun fetchCurrentWeather(params: MutableMap<String, String>) : Response<CurrentResponseModel> {
-        Log.d("resRepository", WebService.api.fetchCurrentWeather(params).toString())
+        try {
+            Log.d("resRepository", WebService.api.fetchCurrentWeather(params).toString())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         return WebService.api.fetchCurrentWeather(params)
     }
 
     suspend fun fetchForecastWeather(params: MutableMap<String, String>) : Response<ForecastResponseModel> {
-        Log.d("resRepository", WebService.api.fetchForecastWeather(params).toString())
+        try {
+            Log.d("resRepository", WebService.api.fetchForecastWeather(params).toString())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         return WebService.api.fetchForecastWeather(params)
     }
 
