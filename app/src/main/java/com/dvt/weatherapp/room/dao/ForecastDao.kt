@@ -15,6 +15,6 @@ interface ForecastDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(forecastWeatherModel: ForecastWeatherModel)
 
-    @Query("DELETE FROM t_current")
+    @Query("DELETE FROM t_forecast")
     suspend fun deleteForecastDetails()
 }
