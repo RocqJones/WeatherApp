@@ -174,7 +174,7 @@ class HomeFragment : Fragment() {
             viewModel.fetchForecastWeather(params)
             viewModel.fetchForecastWeatherResponse.observe(viewLifecycleOwner) { response ->
                 if (response.isSuccessful) {
-                    Log.d(TAG, "${response.body()}")
+                    Log.d(TAG, "response ${response.body()?.foreCastList?.size} : ${response.body()}")
                     // Delete previous
                     viewModelForecast.deleteForecastDetails()
                     insertForecastToRoom(response.body())
