@@ -8,12 +8,17 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.dvt.weatherapp.BaseApplication
 import com.dvt.weatherapp.databinding.FragmentHomeBinding
+import com.dvt.weatherapp.models.CurrentResponseModel
 import com.dvt.weatherapp.repository.ApiCallRepository
+import com.dvt.weatherapp.room.entities.CurrentWeatherModel
 import com.dvt.weatherapp.utils.Constants
 import com.dvt.weatherapp.utils.ReusableUtils
 import com.dvt.weatherapp.viewmodels.ApiViewModel
 import com.dvt.weatherapp.viewmodels.ApiViewModelFactory
+import com.dvt.weatherapp.viewmodels.CurrentViewModel
+import com.dvt.weatherapp.viewmodels.CurrentViewModelFactory
 
 class HomeFragment : Fragment() {
 
@@ -24,6 +29,11 @@ class HomeFragment : Fragment() {
     private val viewModel: ApiViewModel by viewModels {
         val repository = ApiCallRepository()
         ApiViewModelFactory(repository)
+    }
+
+    /** current room ViewModel */
+    private val currentViewModel: CurrentViewModel by viewModels {
+        CurrentViewModelFactory((requireActivity().applicationContext as BaseApplication).currentRepository)
     }
 
 
@@ -42,19 +52,37 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        loadCurrentFromRoom()
+        loadForecastFromRoom()
+    }
+
+    /** Network status
+     * If no network load from ROOM */
     private fun checkConnectivityStatus() {
         try {
             if (ReusableUtils.isDeviceConnected(requireContext())) {
                 getCurrentWeather()
+                getForecastWeather()
             } else {
-                loadFromRoom()
+                loadCurrentFromRoom()
+                loadForecastFromRoom()
             }
         } catch (e : Exception) {
             e.printStackTrace()
         }
     }
 
-    private fun loadFromRoom() {
+    private fun loadCurrentFromRoom() {
+        try {
+            // TODO room logic and if empty pull from server as well
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun loadForecastFromRoom() {
         try {
             // TODO room logic and if empty pull from server as well
         } catch (e: Exception) {
@@ -73,11 +101,34 @@ class HomeFragment : Fragment() {
             viewModel.fetchCurrentWeatherResponse.observe(viewLifecycleOwner) { response ->
                 if (response.isSuccessful) {
                     Log.d(TAG, "${response.body()}")
-                    getForecastWeather()
+                    // Delete previous
+                    currentViewModel.deleteCurrentDetails()
+                    insertCurrentToRoom(response.body())
                 } else {
                     Toast.makeText(requireContext(), "${response.body()?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /** Insert Current Weather */
+    private fun insertCurrentToRoom(body: CurrentResponseModel?) {
+        try {
+            currentViewModel.insert(
+                CurrentWeatherModel(
+                    null,
+                    body?.name,
+                    body?.userCoordinates?.latitude,
+                    body?.userCoordinates?.longitude,
+                    body?.mainDetails?.temp_current,
+                    body?.mainDetails?.temp_min,
+                    body?.mainDetails?.temp_max,
+                    body?.weatherDetails?.get(0)?.main,
+                    body?.weatherDetails?.get(0)?.description
+                )
+            )
         } catch (e: Exception) {
             e.printStackTrace()
         }
