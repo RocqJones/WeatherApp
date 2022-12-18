@@ -6,6 +6,7 @@ import android.net.ConnectivityManager
 object ReusableUtils {
 
     // Check if device has internet
+    @Suppress("DEPRECATION")
     fun isDeviceConnected(context: Context): Boolean {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
