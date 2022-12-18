@@ -19,9 +19,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/font_bold"
-            android:textSize="30sp"
+            android:textSize="70sp"
             android:hint="@string/_20"
-            android:textColor="@color/black" />
+            android:textColor="@color/white" />
 
         <TextView
             android:id="@+id/tvDescription"
@@ -31,7 +31,7 @@
             android:fontFamily="@font/font_bold"
             android:textSize="20sp"
             android:hint="@string/sunny"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:textAllCaps="true" />
 
     </LinearLayout>
@@ -56,17 +56,18 @@
                 android:fontFamily="@font/font_bold"
                 android:textSize="16sp"
                 android:hint="@string/_20"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textAllCaps="true" />
 
             <TextView
                 android:id="@+id/tvMinDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
                 android:fontFamily="@font/font_regular"
                 android:textSize="16sp"
                 android:text="@string/min"
-                android:textColor="@color/black" />
+                android:textColor="@color/white" />
 
         </LinearLayout>
 
@@ -84,17 +85,18 @@
                 android:fontFamily="@font/font_bold"
                 android:textSize="16sp"
                 android:hint="@string/_20"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textAllCaps="true" />
 
             <TextView
                 android:id="@+id/tvCurrentDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
                 android:fontFamily="@font/font_regular"
                 android:textSize="16sp"
                 android:text="@string/current"
-                android:textColor="@color/black" />
+                android:textColor="@color/white" />
 
         </LinearLayout>
 
@@ -112,17 +114,18 @@
                 android:fontFamily="@font/font_bold"
                 android:textSize="16sp"
                 android:hint="@string/_20"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textAllCaps="true" />
 
             <TextView
                 android:id="@+id/tvMaxDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
                 android:fontFamily="@font/font_regular"
                 android:textSize="16sp"
                 android:text="@string/max"
-                android:textColor="@color/black" />
+                android:textColor="@color/white" />
 
         </LinearLayout>
 

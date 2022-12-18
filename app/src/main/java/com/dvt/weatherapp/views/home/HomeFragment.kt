@@ -1,14 +1,17 @@
 package com.dvt.weatherapp.views.home
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.dvt.weatherapp.BaseApplication
+import com.dvt.weatherapp.R
 import com.dvt.weatherapp.databinding.FragmentHomeBinding
 import com.dvt.weatherapp.models.CurrentResponseModel
 import com.dvt.weatherapp.models.ForecastResponseModel
@@ -215,8 +218,61 @@ class HomeFragment : Fragment() {
     }
 
     /** Display Current weather to UI */
-    private fun displayCurrentToUI(it: CurrentWeatherModel) {
+    @SuppressLint("SetTextI18n")
+    private fun displayCurrentToUI(it: List<CurrentWeatherModel>) {
         try {
+            if (it.toMutableList().isNotEmpty()) {
+                binding.tvDegree.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)} ℃"
+                binding.tvMinTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_min ?: 0.0)} ℃"
+                binding.tvCurrentTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)} ℃"
+                binding.tvMaxTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_max ?: 0.0)} ℃"
+                binding.tvDescription.text = it[0].weatherMain
+
+                when {
+                    it[0].weatherMain.equals("Clouds") -> {
+                        cloudBg()
+                    }
+                    it[0].weatherMain.equals("Rain") -> {
+                        rainBb()
+                    }
+                    else -> {
+                        sunnyBg()
+                    }
+                }
+            } else {
+                cloudBg()
+                checkConnectivityStatus()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun cloudBg() {
+        try {
+            binding.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_cloudy)
+            binding.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_cloudy))
+            binding.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_cloudy))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun rainBb() {
+        try {
+            binding.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_rainy)
+            binding.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_rainy))
+            binding.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_rainy))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun sunnyBg() {
+        try {
+            binding.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_sunny)
+            binding.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_sunny))
+            binding.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_sunny))
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -230,7 +286,7 @@ class HomeFragment : Fragment() {
                     // TODO recyclerView & Adapter
                 }
                 else -> {
-                    getForecastWeather()
+                    checkConnectivityStatus()
                 }
             }
         } catch (e: Exception) {
