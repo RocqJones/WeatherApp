@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CurrentDao {
     @Query("SELECT * FROM t_current ORDER BY id ASC")
-    fun getAllCurrentWeather(): Flow<List<CurrentWeatherModel>>
+    fun getAllCurrentWeather(): Flow<CurrentWeatherModel>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(currentWeatherModel: CurrentWeatherModel)

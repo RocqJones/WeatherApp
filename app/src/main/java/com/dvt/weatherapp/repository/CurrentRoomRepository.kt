@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 class CurrentRoomRepository(private val currentDao: CurrentDao) {
 
-    val getAllCurrentWeather : Flow<List<CurrentWeatherModel>> = currentDao.getAllCurrentWeather()
+    val getAllCurrentWeather : Flow<CurrentWeatherModel> = currentDao.getAllCurrentWeather()
 
     @WorkerThread
     suspend fun insert(currentWeatherModel: CurrentWeatherModel) {

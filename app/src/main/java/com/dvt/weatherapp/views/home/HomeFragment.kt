@@ -76,7 +76,25 @@ class HomeFragment : Fragment() {
 
     private fun loadCurrentFromRoom() {
         try {
-            // TODO room logic and if empty pull from server as well
+            currentViewModel.getAllCurrentWeather.observe(viewLifecycleOwner) { current ->
+                current.let {
+                    Log.d("loadCurrentFromRoom", "$it")
+                    if (it != null) {
+                        displayCurrentToUI(it)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * Display Current weather to UI
+     */
+    private fun displayCurrentToUI(it: CurrentWeatherModel) {
+        try {
+            // TODO Display
         } catch (e: Exception) {
             e.printStackTrace()
         }
