@@ -6,24 +6,31 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.dvt.weatherapp.room.dao.CurrentDao
+import com.dvt.weatherapp.room.dao.ForecastDao
 import com.dvt.weatherapp.room.entities.CurrentWeatherModel
+import com.dvt.weatherapp.room.entities.ForecastWeatherModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@Database(entities = [CurrentWeatherModel::class], version = 1, exportSchema = false)
+@Database(
+    entities = [CurrentWeatherModel::class, ForecastWeatherModel::class],
+    version = 1,
+    exportSchema = false
+)
 abstract class WeatherRoomDb : RoomDatabase() {
-    abstract fun currentDao() : CurrentDao
+    abstract fun currentDao(): CurrentDao
+    abstract fun forecastDao(): ForecastDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the same time.
         @Volatile
-        private var INSTANCE : WeatherRoomDb? = null
+        private var INSTANCE: WeatherRoomDb? = null
 
         // To launch a coroutine you need a CoroutineScope
         fun getDatabase(
             context: Context,
             scope: CoroutineScope
-        ) : WeatherRoomDb {
+        ): WeatherRoomDb {
             // If the INSTANCE is not null, then return it, if it is, then create the database
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(

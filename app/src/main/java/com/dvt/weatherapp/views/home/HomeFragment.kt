@@ -11,20 +11,19 @@ import androidx.fragment.app.viewModels
 import com.dvt.weatherapp.BaseApplication
 import com.dvt.weatherapp.databinding.FragmentHomeBinding
 import com.dvt.weatherapp.models.CurrentResponseModel
+import com.dvt.weatherapp.models.ForecastResponseModel
 import com.dvt.weatherapp.repository.ApiCallRepository
 import com.dvt.weatherapp.room.entities.CurrentWeatherModel
+import com.dvt.weatherapp.room.entities.ForecastWeatherModel
 import com.dvt.weatherapp.utils.Constants
 import com.dvt.weatherapp.utils.ReusableUtils
-import com.dvt.weatherapp.viewmodels.ApiViewModel
-import com.dvt.weatherapp.viewmodels.ApiViewModelFactory
-import com.dvt.weatherapp.viewmodels.ViewModelCurrent
-import com.dvt.weatherapp.viewmodels.CurrentViewModelFactory
+import com.dvt.weatherapp.viewmodels.*
 
 class HomeFragment : Fragment() {
 
     private val TAG = "HomeFragment"
 
-    private lateinit var binding : FragmentHomeBinding
+    private lateinit var binding: FragmentHomeBinding
 
     private val viewModel: ApiViewModel by viewModels {
         val repository = ApiCallRepository()
@@ -36,6 +35,10 @@ class HomeFragment : Fragment() {
         CurrentViewModelFactory((requireActivity().applicationContext as BaseApplication).currentRepository)
     }
 
+    /** forecast room ViewModel */
+    private val viewModelForecast: ViewModelForecast by viewModels {
+        ForecastViewModelFactory((requireActivity().applicationContext as BaseApplication).forecastRepository)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,29 +50,37 @@ class HomeFragment : Fragment() {
 
         setOnClickListeners()
 
+        loadFromRoom()
+
         checkConnectivityStatus()
 
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        loadCurrentFromRoom()
-        loadForecastFromRoom()
+    private fun loadFromRoom() {
+        try {
+            loadCurrentFromRoom()
+            loadForecastFromRoom()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
-    /** Network status
+    /**
+     * Network status
      * If no network load from ROOM */
     private fun checkConnectivityStatus() {
         try {
-            if (ReusableUtils.isDeviceConnected(requireContext())) {
-                getCurrentWeather()
-                getForecastWeather()
-            } else {
-                loadCurrentFromRoom()
-                loadForecastFromRoom()
+            when {
+                ReusableUtils.isDeviceConnected(requireContext()) -> {
+                    getCurrentWeather()
+                    getForecastWeather()
+                }
+                else -> {
+                    Toast.makeText(requireContext(), "You're offline!", Toast.LENGTH_SHORT).show()
+                }
             }
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
@@ -89,20 +100,17 @@ class HomeFragment : Fragment() {
         }
     }
 
-    /**
-     * Display Current weather to UI
-     */
-    private fun displayCurrentToUI(it: CurrentWeatherModel) {
-        try {
-            // TODO Display
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
     private fun loadForecastFromRoom() {
         try {
-            // TODO room logic and if empty pull from server as well
+            viewModelForecast.getAllForecastWeather.observe(viewLifecycleOwner) { forecast ->
+                forecast.let {
+                    Log.d("loadForecastFromRoom size", "${it.size}")
+                    Log.d("loadForecastFromRoom", "$it")
+                    if (it != null) {
+                        displayForecastToUI(it)
+                    }
+                }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -123,7 +131,11 @@ class HomeFragment : Fragment() {
                     viewModelCurrent.deleteCurrentDetails()
                     insertCurrentToRoom(response.body())
                 } else {
-                    Toast.makeText(requireContext(), "${response.body()?.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "${response.body()?.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         } catch (e: Exception) {
@@ -163,8 +175,62 @@ class HomeFragment : Fragment() {
             viewModel.fetchForecastWeatherResponse.observe(viewLifecycleOwner) { response ->
                 if (response.isSuccessful) {
                     Log.d(TAG, "${response.body()}")
+                    // Delete previous
+                    viewModelForecast.deleteForecastDetails()
+                    insertForecastToRoom(response.body())
                 } else {
-                    Toast.makeText(requireContext(), "${response.body()?.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "${response.body()?.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /** Insert forecast Weather */
+    private fun insertForecastToRoom(body: ForecastResponseModel?) {
+        try {
+            for (items in body?.foreCastList?.toMutableList()!!) {
+                val forecastWeatherModel = ForecastWeatherModel(
+                    null,
+                    body.city?.name,
+                    body.city?.userCoordinates?.latitude,
+                    body.city?.userCoordinates?.longitude,
+                    items.mainDetails?.temp_current,
+                    items.mainDetails?.temp_min,
+                    items.mainDetails?.temp_max,
+                    items.weatherDetails?.get(0)?.main,
+                    items.weatherDetails?.get(0)?.description,
+                    items.dt_txt
+                )
+                viewModelForecast.insert(forecastWeatherModel)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /** Display Current weather to UI */
+    private fun displayCurrentToUI(it: CurrentWeatherModel) {
+        try {
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /** Display Forecast weather to UI */
+    private fun displayForecastToUI(it: List<ForecastWeatherModel>) {
+        try {
+            when {
+                it.toMutableList().isNotEmpty() -> {
+                    // TODO recyclerView & Adapter
+                }
+                else -> {
+                    getForecastWeather()
                 }
             }
         } catch (e: Exception) {
@@ -174,7 +240,6 @@ class HomeFragment : Fragment() {
 
     private fun setOnClickListeners() {
         try {
-
         } catch (e: Exception) {
             e.printStackTrace()
         }
