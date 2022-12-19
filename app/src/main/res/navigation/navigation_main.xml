@@ -11,22 +11,22 @@
         android:label="fragment_home"
         tools:layout="@layout/fragment_home">
         <action
-            android:id="@+id/action_homeFragment_to_detailsFragment"
-            app:destination="@id/detailsFragment"
-            app:popUpTo="@id/detailsFragment" />
-        <action
             android:id="@+id/action_homeFragment_to_favouriteFragment"
             app:destination="@id/favouriteFragment"
             app:popUpTo="@id/favouriteFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_placesFragment"
+            app:destination="@id/placesFragment"
+            app:popUpTo="@id/placesFragment"/>
     </fragment>
     <fragment
-        android:id="@+id/detailsFragment"
-        android:name="com.dvt.weatherapp.views.details.DetailsFragment"
-        android:label="fragment_details"
-        tools:layout="@layout/fragment_details" />
-    <fragment
         android:id="@+id/favouriteFragment"
-        android:name="com.dvt.weatherapp.views.places.FavouriteFragment"
+        android:name="com.dvt.weatherapp.views.mapfragments.FavouriteFragment"
         android:label="fragment_favourites"
         tools:layout="@layout/fragment_favourites" />
+    <fragment
+        android:id="@+id/placesFragment"
+        android:name="com.dvt.weatherapp.views.mapfragments.PlacesFragment"
+        android:label="fragment_places"
+        tools:layout="@layout/fragment_places" />
 </navigation>

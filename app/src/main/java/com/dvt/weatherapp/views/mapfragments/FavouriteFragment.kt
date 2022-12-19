@@ -1,4 +1,4 @@
-package com.dvt.weatherapp.views.places
+package com.dvt.weatherapp.views.mapfragments
 
 import android.annotation.SuppressLint
 import android.location.Location
