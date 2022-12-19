@@ -69,4 +69,11 @@ dependencies {
     // Retrofit
     implementation "com.squareup.retrofit2:retrofit:$rootProject.retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$rootProject.retrofitVersion"
+
+    // gms location
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+
+    // play-services-maps
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.maps:google-maps-services:2.1.0'
 }

@@ -1,9 +1,17 @@
 package com.dvt.weatherapp.utils
 
+import android.app.Dialog
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.os.Build
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.widget.AppCompatButton
+import com.dvt.weatherapp.R
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -33,5 +41,31 @@ object ReusableUtils {
         // println("Date Time $zonedDateTime")
         // println("Date Time ${formatter.format(zonedDateTime)}")
         return formatter.format(zonedDateTime)
+    }
+
+    fun normalDialog(title: String, message: String, context: Context) {
+        try {
+            val dialog = Dialog(context)
+            dialog.setContentView(R.layout.dialog_alert)
+            dialog.setCancelable(false)
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+            val dialogCloseBtn = dialog.findViewById<ImageView>(R.id.dialogCloseBtn)
+            val dialogTitle = dialog.findViewById<TextView>(R.id.dialogTitle)
+            val dialogMessage = dialog.findViewById<TextView>(R.id.dialogMessage)
+            val okBtn = dialog.findViewById<AppCompatButton>(R.id.dialogOkBtn)
+
+            dialogTitle.text = title
+            dialogMessage.text = message
+
+            dialogCloseBtn.visibility = View.GONE
+            okBtn.setOnClickListener { dialog.dismiss() }
+
+            dialog.window!!.attributes.windowAnimations = R.style.DialogAnimation_1
+            dialog.show()
+            dialog.setCanceledOnTouchOutside(false)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

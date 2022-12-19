@@ -1,12 +1,17 @@
 package com.dvt.weatherapp.views.home
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -25,8 +30,10 @@ import com.dvt.weatherapp.room.entities.ForecastWeatherModel
 import com.dvt.weatherapp.utils.Constants
 import com.dvt.weatherapp.utils.ReusableUtils
 import com.dvt.weatherapp.viewmodels.*
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), LocationListener {
 
     private val TAG = "HomeFragment"
 
@@ -52,6 +59,9 @@ class HomeFragment : Fragment() {
         FavouriteViewModelFactory((requireActivity().applicationContext as BaseApplication).favouriteRepository)
     }
 
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private val locationRequestCode = 99
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -64,9 +74,16 @@ class HomeFragment : Fragment() {
 
         loadFromRoom()
 
-        checkConnectivityStatus()
-
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // initialize fused client
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+        // location permissions
+        checkLocationPermission()
     }
 
     private fun loadFromRoom() {
@@ -81,12 +98,12 @@ class HomeFragment : Fragment() {
     /**
      * Network status
      * If no network load from ROOM */
-    private fun checkConnectivityStatus() {
+    private fun checkConnectivityStatus(lat: String, lon: String) {
         try {
             when {
                 ReusableUtils.isDeviceConnected(requireContext()) -> {
-                    getCurrentWeather()
-                    getForecastWeather()
+                    getCurrentWeather(lat, lon)
+                    getForecastWeather(lat, lon)
                 }
                 else -> {
                     Toast.makeText(requireContext(), "You're offline!", Toast.LENGTH_SHORT).show()
@@ -128,11 +145,11 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun getCurrentWeather() {
+    private fun getCurrentWeather(lat: String, lon: String) {
         try {
             val params: MutableMap<String, String> = HashMap()
-            params["lat"] = "-1.2240624585163389"
-            params["lon"] = "36.919931302314055"
+            params["lat"] = lat
+            params["lon"] = lon
             params["appid"] = Constants.APP_ID
 
             viewModel.fetchCurrentWeather(params)
@@ -176,11 +193,11 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun getForecastWeather() {
+    private fun getForecastWeather(lat: String, lon: String) {
         try {
             val params: MutableMap<String, String> = HashMap()
-            params["lat"] = "-1.2240624585163389"
-            params["lon"] = "36.919931302314055"
+            params["lat"] = lat
+            params["lon"] = lon
             params["appid"] = Constants.APP_ID
 
             viewModel.fetchForecastWeather(params)
@@ -251,7 +268,7 @@ class HomeFragment : Fragment() {
                 }
             } else {
                 cloudBg()
-                checkConnectivityStatus()
+                getCurrentKnownLocation()
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -312,7 +329,7 @@ class HomeFragment : Fragment() {
                     )
                 }
                 else -> {
-                    checkConnectivityStatus()
+                    getCurrentKnownLocation()
                 }
             }
         } catch (e: Exception) {
@@ -351,5 +368,112 @@ class HomeFragment : Fragment() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    override fun onLocationChanged(p0: Location) {
+        try {
+            Log.d("locationChanged", "LON: ${p0.longitude}, LAT: ${p0.latitude}")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun checkLocationPermission() {
+        try {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(
+                        requireActivity(),
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) &&
+                    ActivityCompat.shouldShowRequestPermissionRationale(
+                        requireActivity(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                ) {
+                    // Show an explanation to the user *asynchronously* -- don't block
+                    // this thread waiting for the user's response! After the user
+                    ActivityCompat.requestPermissions(
+                        requireActivity(),
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ),
+                        locationRequestCode
+                    )
+                } else {
+                    // We can request the permission.
+                    ActivityCompat.requestPermissions(
+                        requireActivity(), arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ),
+                        locationRequestCode
+                    )
+                }
+            } else {
+                // Permission previously granted
+                getCurrentKnownLocation()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /** We ignore this permission complain because we've already handled it before getting here */
+    @SuppressLint("MissingPermission")
+    private fun getCurrentKnownLocation() {
+        try {
+            fusedLocationProviderClient.getCurrentLocation(
+                Constants.priority,
+                Constants.cancellationTokenSource.token
+            ).addOnSuccessListener { location ->
+                if (location != null) {
+                    // Logic to handle location object
+                    Log.d("getCurrentLocation", "${location.latitude}, ${location.longitude}")
+                    checkConnectivityStatus(location.latitude.toString(), location.longitude.toString())
+                } else {
+                    Log.d("getCurrentLocation", "Returned Null")
+                }
+            }.addOnFailureListener { exception ->
+                Log.d("getCurrentLocation", "location failed with exception: $exception")
+                // is location - GPS services enabled
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == locationRequestCode)
+            if (grantResults.isNotEmpty()
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED
+            ) {
+                // permission was granted, do location-related task you need to do.
+                if (ContextCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    getCurrentKnownLocation()
+                }
+            } else {
+                // permission denied! Disable the functionality that depends on this permission.
+                ReusableUtils.normalDialog(
+                    "Permission denied!",
+                    getString(R.string.location_permission_denied),
+                    requireContext()
+                )
+            }
     }
 }
