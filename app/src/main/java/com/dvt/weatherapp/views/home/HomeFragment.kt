@@ -340,7 +340,7 @@ class HomeFragment : Fragment() {
                     model.forecastDate
                 )
             )
-            Toast.makeText(requireContext(), "Successfully added favourite &#x1f44d", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Successfully added favourite!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
         }
