@@ -2,6 +2,7 @@ package com.dvt.weatherapp
 
 import android.app.Application
 import com.dvt.weatherapp.repository.CurrentRoomRepository
+import com.dvt.weatherapp.repository.FavouriteRoomRepository
 import com.dvt.weatherapp.repository.ForecastRoomRepository
 import com.dvt.weatherapp.room.db.WeatherRoomDb
 import kotlinx.coroutines.CoroutineScope
@@ -17,4 +18,7 @@ class BaseApplication : Application() {
 
     // Forecast
     val forecastRepository by lazy { ForecastRoomRepository(database.forecastDao()) }
+
+    // Favourite
+    val favouriteRepository by lazy { FavouriteRoomRepository(database.favouriteDao()) }
 }

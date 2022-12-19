@@ -1,19 +1,26 @@
 package com.dvt.weatherapp.views.home
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.dvt.weatherapp.BaseApplication
+import com.dvt.weatherapp.R
+import com.dvt.weatherapp.adapters.AdapterForecast
 import com.dvt.weatherapp.databinding.FragmentHomeBinding
+import com.dvt.weatherapp.listeners.ForecastWeatherListener
 import com.dvt.weatherapp.models.CurrentResponseModel
 import com.dvt.weatherapp.models.ForecastResponseModel
 import com.dvt.weatherapp.repository.ApiCallRepository
 import com.dvt.weatherapp.room.entities.CurrentWeatherModel
+import com.dvt.weatherapp.room.entities.FavouriteWeatherModel
 import com.dvt.weatherapp.room.entities.ForecastWeatherModel
 import com.dvt.weatherapp.utils.Constants
 import com.dvt.weatherapp.utils.ReusableUtils
@@ -38,6 +45,11 @@ class HomeFragment : Fragment() {
     /** forecast room ViewModel */
     private val viewModelForecast: ViewModelForecast by viewModels {
         ForecastViewModelFactory((requireActivity().applicationContext as BaseApplication).forecastRepository)
+    }
+
+    /** favourite room ViewModel */
+    private val viewModelFavourite: ViewModelFavourite by viewModels {
+        FavouriteViewModelFactory((requireActivity().applicationContext as BaseApplication).favouriteRepository)
     }
 
     override fun onCreateView(
@@ -205,7 +217,8 @@ class HomeFragment : Fragment() {
                     items.mainDetails?.temp_max,
                     items.weatherDetails?.get(0)?.main,
                     items.weatherDetails?.get(0)?.description,
-                    items.dt_txt
+                    items.dt_txt,
+                    "No"
                 )
                 viewModelForecast.insert(forecastWeatherModel)
             }
@@ -215,8 +228,61 @@ class HomeFragment : Fragment() {
     }
 
     /** Display Current weather to UI */
-    private fun displayCurrentToUI(it: CurrentWeatherModel) {
+    @SuppressLint("SetTextI18n")
+    private fun displayCurrentToUI(it: List<CurrentWeatherModel>) {
         try {
+            if (it.toMutableList().isNotEmpty()) {
+                binding.tvDegree.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)}℃"
+                binding.tvMinTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_min ?: 0.0)}℃"
+                binding.tvCurrentTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)}℃"
+                binding.tvMaxTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_max ?: 0.0)}℃"
+                binding.tvDescription.text = it[0].weatherMain
+
+                when {
+                    it[0].weatherMain.equals("Clouds") -> {
+                        cloudBg()
+                    }
+                    it[0].weatherMain.equals("Rain") -> {
+                        rainBb()
+                    }
+                    else -> {
+                        sunnyBg()
+                    }
+                }
+            } else {
+                cloudBg()
+                checkConnectivityStatus()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun cloudBg() {
+        try {
+            binding.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_cloudy)
+            binding.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_cloudy))
+            binding.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_cloudy))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun rainBb() {
+        try {
+            binding.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_rainy)
+            binding.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_rainy))
+            binding.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_rainy))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun sunnyBg() {
+        try {
+            binding.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_sunny)
+            binding.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_sunny))
+            binding.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_sunny))
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -227,12 +293,54 @@ class HomeFragment : Fragment() {
         try {
             when {
                 it.toMutableList().isNotEmpty() -> {
-                    // TODO recyclerView & Adapter
+                    binding.rvForecast.layoutManager = LinearLayoutManager(context)
+                    binding.rvForecast.adapter = AdapterForecast(
+                        it, requireContext(),
+                        object : ForecastWeatherListener {
+                            override fun onResponse(model: ForecastWeatherModel, i: Int) {
+                                try {
+                                    when (i) {
+                                        201 -> {
+                                            updateAndAddFavourite(model)
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+                        }
+                    )
                 }
                 else -> {
-                    getForecastWeather()
+                    checkConnectivityStatus()
                 }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun updateAndAddFavourite(model: ForecastWeatherModel) {
+        try {
+            viewModelForecast.update(model.id!!, "Yes")
+
+            // Add new favourite item to room
+            viewModelFavourite.insert(
+                FavouriteWeatherModel(
+                    null,
+                    model.id,
+                    model.locationName,
+                    model.latitude,
+                    model.longitude,
+                    model.temperature,
+                    model.temp_min,
+                    model.temp_max,
+                    model.weatherMain,
+                    model.weatherDescription,
+                    model.forecastDate
+                )
+            )
+            Toast.makeText(requireContext(), "Successfully added favourite!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
         }

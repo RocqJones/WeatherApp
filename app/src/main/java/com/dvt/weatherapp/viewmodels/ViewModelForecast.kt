@@ -17,6 +17,10 @@ class ViewModelForecast(private val repository: ForecastRoomRepository) : ViewMo
     fun deleteForecastDetails() = viewModelScope.launch {
         repository.deleteForecastDetails()
     }
+
+    fun update(_id: Int, status: String) = viewModelScope.launch{
+        repository.update(_id, status)
+    }
 }
 class ForecastViewModelFactory(private val repository: ForecastRoomRepository) :
     ViewModelProvider.Factory {

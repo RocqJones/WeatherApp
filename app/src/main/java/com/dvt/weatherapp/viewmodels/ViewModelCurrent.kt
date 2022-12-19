@@ -7,7 +7,7 @@ import kotlinx.coroutines.launch
 import java.lang.IllegalArgumentException
 
 class ViewModelCurrent(private val repository: CurrentRoomRepository) : ViewModel() {
-    val getAllCurrentWeather: LiveData<CurrentWeatherModel> =
+    val getAllCurrentWeather: LiveData<List<CurrentWeatherModel>> =
         repository.getAllCurrentWeather.asLiveData()
 
     // Launching a new coroutine to insert the data in a non-blocking way
