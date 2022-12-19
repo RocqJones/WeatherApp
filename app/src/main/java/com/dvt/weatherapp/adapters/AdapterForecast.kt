@@ -2,6 +2,7 @@ package com.dvt.weatherapp.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
@@ -30,37 +31,47 @@ class AdapterForecast (
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: RVHolder, position: Int) {
         val binding = holder.binding
+        try {
+            binding.tvTemperature.text = "${ReusableUtils.convertKelvinToCelsius(
+                forecastListModel[position].temperature ?: 0.0
+            )} ℃"
 
-        binding.tvDayOfWeek.text = forecastListModel[position].forecastDate
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
+                    binding.tvDayOfWeek.text = ReusableUtils.dateTimeConverter(forecastListModel[position].forecastDate.toString())
+                }
+                else -> {
+                    binding.tvDayOfWeek.text = forecastListModel[position].forecastDate
+                }
+            }
 
-        binding.tvTemperature.text = "${ReusableUtils.convertKelvinToCelsius(
-            forecastListModel[position].temperature ?: 0.0
-        )} ℃"
+            when {
+                forecastListModel[position].weatherMain.equals("Clouds") -> {
+                    binding.imgConditionIcon.background = ContextCompat.getDrawable(mContext, R.drawable.partlysunny_3x)
+                }
+                forecastListModel[position].weatherMain.equals("Rain") -> {
+                    binding.imgConditionIcon.background = ContextCompat.getDrawable(mContext, R.drawable.rain_3x)
+                }
+                else -> {
+                    binding.imgConditionIcon.background = ContextCompat.getDrawable(mContext, R.drawable.clear_3x)
+                }
+            }
 
-        when {
-            forecastListModel[position].weatherMain.equals("Clouds") -> {
-                binding.imgConditionIcon.background = ContextCompat.getDrawable(mContext, R.drawable.partlysunny_3x)
+            when {
+                forecastListModel[position].liked.equals("Yes") -> {
+                    binding.addFavourite.background = ContextCompat.getDrawable(mContext, R.drawable.ic_baseline_favorite_red_20)
+                }
+                else -> {
+                    binding.addFavourite.background = ContextCompat.getDrawable(mContext, R.drawable.ic_baseline_favorite_20)
+                }
             }
-            forecastListModel[position].weatherMain.equals("Rain") -> {
-                binding.imgConditionIcon.background = ContextCompat.getDrawable(mContext, R.drawable.rain_3x)
-            }
-            else -> {
-                binding.imgConditionIcon.background = ContextCompat.getDrawable(mContext, R.drawable.clear_3x)
-            }
-        }
 
-        when {
-            forecastListModel[position].liked.equals("Yes") -> {
-                binding.addFavourite.background = ContextCompat.getDrawable(mContext, R.drawable.ic_baseline_favorite_red_20)
+            // Flag this item as favourite
+            binding.addFavourite.setOnClickListener {
+                Handler(Looper.getMainLooper()).post { listener.onResponse(forecastListModel[position], 201) }
             }
-            else -> {
-                binding.addFavourite.background = ContextCompat.getDrawable(mContext, R.drawable.ic_baseline_favorite_20)
-            }
-        }
-
-        // Flag this item as favourite
-        binding.addFavourite.setOnClickListener {
-            Handler(Looper.getMainLooper()).post { listener.onResponse(forecastListModel[position], 201) }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
