@@ -17,4 +17,7 @@ interface ForecastDao {
 
     @Query("DELETE FROM t_forecast")
     suspend fun deleteForecastDetails()
+
+    @Query("UPDATE t_forecast SET liked = :status WHERE id = :id")
+    suspend fun update(id: Int, status: String)
 }

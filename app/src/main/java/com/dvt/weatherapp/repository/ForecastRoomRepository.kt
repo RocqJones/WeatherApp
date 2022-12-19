@@ -17,4 +17,9 @@ class ForecastRoomRepository(private val forecastDao: ForecastDao) {
     suspend fun deleteForecastDetails() {
         forecastDao.deleteForecastDetails()
     }
+
+    @WorkerThread
+    suspend fun update(_id: Int, status: String) {
+        forecastDao.update(_id, status)
+    }
 }
