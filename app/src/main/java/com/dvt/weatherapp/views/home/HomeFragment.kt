@@ -10,9 +10,12 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.dvt.weatherapp.BaseApplication
 import com.dvt.weatherapp.R
+import com.dvt.weatherapp.adapters.AdapterForecast
 import com.dvt.weatherapp.databinding.FragmentHomeBinding
+import com.dvt.weatherapp.listeners.ForecastWeatherListener
 import com.dvt.weatherapp.models.CurrentResponseModel
 import com.dvt.weatherapp.models.ForecastResponseModel
 import com.dvt.weatherapp.repository.ApiCallRepository
@@ -223,10 +226,10 @@ class HomeFragment : Fragment() {
     private fun displayCurrentToUI(it: List<CurrentWeatherModel>) {
         try {
             if (it.toMutableList().isNotEmpty()) {
-                binding.tvDegree.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)} ℃"
-                binding.tvMinTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_min ?: 0.0)} ℃"
-                binding.tvCurrentTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)} ℃"
-                binding.tvMaxTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_max ?: 0.0)} ℃"
+                binding.tvDegree.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)}℃"
+                binding.tvMinTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_min ?: 0.0)}℃"
+                binding.tvCurrentTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)}℃"
+                binding.tvMaxTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_max ?: 0.0)}℃"
                 binding.tvDescription.text = it[0].weatherMain
 
                 when {
@@ -284,12 +287,36 @@ class HomeFragment : Fragment() {
         try {
             when {
                 it.toMutableList().isNotEmpty() -> {
-                    // TODO recyclerView & Adapter
+                    binding.rvForecast.layoutManager = LinearLayoutManager(context)
+                    binding.rvForecast.adapter = AdapterForecast(
+                        it, requireContext(),
+                        object : ForecastWeatherListener {
+                            override fun onResponse(model: ForecastWeatherModel, i: Int) {
+                                try {
+                                    when (i) {
+                                        201 -> {
+                                            updateAndAddFavourite(model)
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+                        }
+                    )
                 }
                 else -> {
                     checkConnectivityStatus()
                 }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun updateAndAddFavourite(model: ForecastWeatherModel) {
+        try {
+            viewModelForecast.update(model.id!!, "Yes")
         } catch (e: Exception) {
             e.printStackTrace()
         }

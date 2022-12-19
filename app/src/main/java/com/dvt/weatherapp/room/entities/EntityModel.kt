@@ -31,3 +31,19 @@ data class ForecastWeatherModel(
     @ColumnInfo(name = "forecastDate") val forecastDate: String? = null,
     @ColumnInfo(name = "liked") val liked: String? = null // Yes or No
 )
+
+
+@Entity(tableName = "t_favourite")
+data class FavouriteWeatherModel(
+    @PrimaryKey(autoGenerate = true) val id: Int?,
+    @ColumnInfo(name = "forecastId") val forecastId: Int? = null,
+    @ColumnInfo(name = "locationName") val locationName: String? = null,
+    @ColumnInfo(name = "latitude") val latitude: Double? = null,
+    @ColumnInfo(name = "longitude") val longitude: Double? = null,
+    @ColumnInfo(name = "temperature") val temperature: Double? = null,
+    @ColumnInfo(name = "temp_min") val temp_min: Double? = null,
+    @ColumnInfo(name = "temp_max") val temp_max: Double? = null,
+    @ColumnInfo(name = "weatherMain") val weatherMain: String? = null,
+    @ColumnInfo(name = "weatherDescription") val weatherDescription: String? = null,
+    @ColumnInfo(name = "forecastDate") val forecastDate: String? = null,
+)
