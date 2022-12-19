@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.dvt.weatherapp.room.dao.CurrentDao
+import com.dvt.weatherapp.room.dao.FavouriteDao
 import com.dvt.weatherapp.room.dao.ForecastDao
 import com.dvt.weatherapp.room.entities.CurrentWeatherModel
 import com.dvt.weatherapp.room.entities.FavouriteWeatherModel
@@ -19,8 +20,10 @@ import kotlinx.coroutines.launch
     exportSchema = false
 )
 abstract class WeatherRoomDb : RoomDatabase() {
+
     abstract fun currentDao(): CurrentDao
     abstract fun forecastDao(): ForecastDao
+    abstract fun favouriteDao(): FavouriteDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the same time.

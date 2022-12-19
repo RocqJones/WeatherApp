@@ -20,6 +20,7 @@ import com.dvt.weatherapp.models.CurrentResponseModel
 import com.dvt.weatherapp.models.ForecastResponseModel
 import com.dvt.weatherapp.repository.ApiCallRepository
 import com.dvt.weatherapp.room.entities.CurrentWeatherModel
+import com.dvt.weatherapp.room.entities.FavouriteWeatherModel
 import com.dvt.weatherapp.room.entities.ForecastWeatherModel
 import com.dvt.weatherapp.utils.Constants
 import com.dvt.weatherapp.utils.ReusableUtils
@@ -44,6 +45,11 @@ class HomeFragment : Fragment() {
     /** forecast room ViewModel */
     private val viewModelForecast: ViewModelForecast by viewModels {
         ForecastViewModelFactory((requireActivity().applicationContext as BaseApplication).forecastRepository)
+    }
+
+    /** favourite room ViewModel */
+    private val viewModelFavourite: ViewModelFavourite by viewModels {
+        FavouriteViewModelFactory((requireActivity().applicationContext as BaseApplication).favouriteRepository)
     }
 
     override fun onCreateView(
@@ -317,6 +323,24 @@ class HomeFragment : Fragment() {
     private fun updateAndAddFavourite(model: ForecastWeatherModel) {
         try {
             viewModelForecast.update(model.id!!, "Yes")
+
+            // Add new favourite item to room
+            viewModelFavourite.insert(
+                FavouriteWeatherModel(
+                    null,
+                    model.id,
+                    model.locationName,
+                    model.latitude,
+                    model.longitude,
+                    model.temperature,
+                    model.temp_min,
+                    model.temp_max,
+                    model.weatherMain,
+                    model.weatherDescription,
+                    model.forecastDate
+                )
+            )
+            Toast.makeText(requireContext(), "Successfully added favourite &#x1f44d", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
         }
