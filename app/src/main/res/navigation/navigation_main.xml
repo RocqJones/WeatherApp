@@ -14,10 +14,19 @@
             android:id="@+id/action_homeFragment_to_detailsFragment"
             app:destination="@id/detailsFragment"
             app:popUpTo="@id/detailsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_favouriteFragment"
+            app:destination="@id/favouriteFragment"
+            app:popUpTo="@id/favouriteFragment" />
     </fragment>
     <fragment
         android:id="@+id/detailsFragment"
         android:name="com.dvt.weatherapp.views.details.DetailsFragment"
         android:label="fragment_details"
         tools:layout="@layout/fragment_details" />
+    <fragment
+        android:id="@+id/favouriteFragment"
+        android:name="com.dvt.weatherapp.views.places.FavouriteFragment"
+        android:label="fragment_favourites"
+        tools:layout="@layout/fragment_favourites" />
 </navigation>

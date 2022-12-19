@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dvt.weatherapp.BaseApplication
 import com.dvt.weatherapp.R
@@ -393,12 +394,14 @@ class HomeFragment : Fragment(), LocationListener {
             binding.drawerLayout.addDrawerListener(toggle)
             toggle.syncState()
 
+            // Setup Nav drawer Menu
             setupDrawerContent(binding.navView)
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
+    /** Nav drawer Menu init */
     private fun setupDrawerContent(navView: NavigationView) {
         try {
             navView.setNavigationItemSelectedListener { menuItem ->
@@ -410,6 +413,7 @@ class HomeFragment : Fragment(), LocationListener {
         }
     }
 
+    /** Nav drawer menu logic */
     private fun selectDrawerItem(menuItem: MenuItem) {
         try {
             when (menuItem.itemId) {
@@ -425,7 +429,10 @@ class HomeFragment : Fragment(), LocationListener {
 
     private fun moveToFavourites() {
         try {
-            Toast.makeText(requireContext(), "moveToFavourites Clicked!", Toast.LENGTH_SHORT).show()
+            binding.drawerLayout.close()
+            NavHostFragment.findNavController(this).navigate(
+                R.id.action_homeFragment_to_favouriteFragment
+            )
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -433,7 +440,10 @@ class HomeFragment : Fragment(), LocationListener {
 
     private fun moveToSearchPlaces() {
         try {
-            Toast.makeText(requireContext(), "moveToSearchPlaces Clicked!", Toast.LENGTH_SHORT).show()
+            binding.drawerLayout.close()
+            NavHostFragment.findNavController(this).navigate(
+                R.id.action_homeFragment_to_detailsFragment
+            )
         } catch (e: Exception) {
             e.printStackTrace()
         }
