@@ -9,4 +9,17 @@
     <string name="max">max</string>
     <string name="img">img</string>
     <string name="monday">Monday</string>
+    <string name="title">title</string>
+    <string name="message_description">message description</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="gps_off">GPS turned off.</string>
+    <string name="gps_message">Kindly turn on your GPS location for better user experience!</string>
+    <string name="location_permission_denied">Location permission denied, all the functionality that depends on this permission will be disabled.</string>
+    <string name="ok">OK</string>
+    <string name="view_favourites">View Favourites</string>
+    <string name="search_places">Search Other Places</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>

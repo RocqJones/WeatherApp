@@ -1,15 +1,24 @@
 package com.dvt.weatherapp.views.home
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dvt.weatherapp.BaseApplication
 import com.dvt.weatherapp.R
@@ -25,12 +34,17 @@ import com.dvt.weatherapp.room.entities.ForecastWeatherModel
 import com.dvt.weatherapp.utils.Constants
 import com.dvt.weatherapp.utils.ReusableUtils
 import com.dvt.weatherapp.viewmodels.*
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.material.navigation.NavigationView
+import kotlin.collections.set
 
-class HomeFragment : Fragment() {
+
+class HomeFragment : Fragment(), LocationListener {
 
     private val TAG = "HomeFragment"
 
-    private lateinit var binding: FragmentHomeBinding
+    lateinit var binding: FragmentHomeBinding
 
     private val viewModel: ApiViewModel by viewModels {
         val repository = ApiCallRepository()
@@ -52,6 +66,11 @@ class HomeFragment : Fragment() {
         FavouriteViewModelFactory((requireActivity().applicationContext as BaseApplication).favouriteRepository)
     }
 
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private val locationRequestCode = 99
+
+    private var firstVisit = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -64,9 +83,18 @@ class HomeFragment : Fragment() {
 
         loadFromRoom()
 
-        checkConnectivityStatus()
+        firstVisit = true
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // initialize fused client
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+        // location permissions
+        checkLocationPermission()
     }
 
     private fun loadFromRoom() {
@@ -81,12 +109,12 @@ class HomeFragment : Fragment() {
     /**
      * Network status
      * If no network load from ROOM */
-    private fun checkConnectivityStatus() {
+    private fun checkConnectivityStatus(lat: String, lon: String) {
         try {
             when {
                 ReusableUtils.isDeviceConnected(requireContext()) -> {
-                    getCurrentWeather()
-                    getForecastWeather()
+                    getCurrentWeather(lat, lon)
+                    getForecastWeather(lat, lon)
                 }
                 else -> {
                     Toast.makeText(requireContext(), "You're offline!", Toast.LENGTH_SHORT).show()
@@ -128,11 +156,11 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun getCurrentWeather() {
+    private fun getCurrentWeather(lat: String, lon: String) {
         try {
             val params: MutableMap<String, String> = HashMap()
-            params["lat"] = "-1.2240624585163389"
-            params["lon"] = "36.919931302314055"
+            params["lat"] = lat
+            params["lon"] = lon
             params["appid"] = Constants.APP_ID
 
             viewModel.fetchCurrentWeather(params)
@@ -176,11 +204,11 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun getForecastWeather() {
+    private fun getForecastWeather(lat: String, lon: String) {
         try {
             val params: MutableMap<String, String> = HashMap()
-            params["lat"] = "-1.2240624585163389"
-            params["lon"] = "36.919931302314055"
+            params["lat"] = lat
+            params["lon"] = lon
             params["appid"] = Constants.APP_ID
 
             viewModel.fetchForecastWeather(params)
@@ -232,11 +260,11 @@ class HomeFragment : Fragment() {
     private fun displayCurrentToUI(it: List<CurrentWeatherModel>) {
         try {
             if (it.toMutableList().isNotEmpty()) {
-                binding.tvDegree.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)}℃"
-                binding.tvMinTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_min ?: 0.0)}℃"
-                binding.tvCurrentTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)}℃"
-                binding.tvMaxTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_max ?: 0.0)}℃"
-                binding.tvDescription.text = it[0].weatherMain
+                binding.appBarMain.tvDegree.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)}℃"
+                binding.appBarMain.tvMinTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_min ?: 0.0)}℃"
+                binding.appBarMain.tvCurrentTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)}℃"
+                binding.appBarMain.tvMaxTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_max ?: 0.0)}℃"
+                binding.appBarMain.tvDescription.text = it[0].weatherMain
 
                 when {
                     it[0].weatherMain.equals("Clouds") -> {
@@ -251,7 +279,7 @@ class HomeFragment : Fragment() {
                 }
             } else {
                 cloudBg()
-                checkConnectivityStatus()
+                getCurrentKnownLocation()
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -260,9 +288,10 @@ class HomeFragment : Fragment() {
 
     private fun cloudBg() {
         try {
-            binding.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_cloudy)
-            binding.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_cloudy))
-            binding.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_cloudy))
+            binding.appBarMain.linearLayout0.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_cloudy)
+            binding.appBarMain.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_cloudy)
+            binding.appBarMain.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_cloudy))
+            binding.appBarMain.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_cloudy))
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -270,9 +299,10 @@ class HomeFragment : Fragment() {
 
     private fun rainBb() {
         try {
-            binding.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_rainy)
-            binding.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_rainy))
-            binding.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_rainy))
+            binding.appBarMain.linearLayout0.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_rainy)
+            binding.appBarMain.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_rainy)
+            binding.appBarMain.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_rainy))
+            binding.appBarMain.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_rainy))
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -280,9 +310,10 @@ class HomeFragment : Fragment() {
 
     private fun sunnyBg() {
         try {
-            binding.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_sunny)
-            binding.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_sunny))
-            binding.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_sunny))
+            binding.appBarMain.linearLayout0.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_sunny)
+            binding.appBarMain.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_sunny)
+            binding.appBarMain.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_sunny))
+            binding.appBarMain.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_sunny))
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -293,8 +324,8 @@ class HomeFragment : Fragment() {
         try {
             when {
                 it.toMutableList().isNotEmpty() -> {
-                    binding.rvForecast.layoutManager = LinearLayoutManager(context)
-                    binding.rvForecast.adapter = AdapterForecast(
+                    binding.appBarMain.rvForecast.layoutManager = LinearLayoutManager(context)
+                    binding.appBarMain.rvForecast.adapter = AdapterForecast(
                         it, requireContext(),
                         object : ForecastWeatherListener {
                             override fun onResponse(model: ForecastWeatherModel, i: Int) {
@@ -312,7 +343,7 @@ class HomeFragment : Fragment() {
                     )
                 }
                 else -> {
-                    checkConnectivityStatus()
+                    getCurrentKnownLocation()
                 }
             }
         } catch (e: Exception) {
@@ -348,8 +379,193 @@ class HomeFragment : Fragment() {
 
     private fun setOnClickListeners() {
         try {
+            binding.appBarMain.drawerToggleIc.setOnClickListener { v ->
+                binding.drawerLayout.openDrawer(
+                    GravityCompat.START
+                )
+            }
+
+            val toggle = ActionBarDrawerToggle(
+                requireActivity(),
+                binding.drawerLayout,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close
+            )
+            binding.drawerLayout.addDrawerListener(toggle)
+            toggle.syncState()
+
+            // Setup Nav drawer Menu
+            setupDrawerContent(binding.navView)
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    /** Nav drawer Menu init */
+    private fun setupDrawerContent(navView: NavigationView) {
+        try {
+            navView.setNavigationItemSelectedListener { menuItem ->
+                selectDrawerItem(menuItem)
+                true
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /** Nav drawer menu logic */
+    private fun selectDrawerItem(menuItem: MenuItem) {
+        try {
+            when (menuItem.itemId) {
+                R.id.navigation_favourite ->
+                    moveToFavourites()
+                R.id.navigation_places ->
+                    moveToSearchPlaces()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun moveToFavourites() {
+        try {
+            binding.drawerLayout.close()
+            NavHostFragment.findNavController(this).navigate(
+                R.id.action_homeFragment_to_favouriteFragment
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun moveToSearchPlaces() {
+        try {
+            binding.drawerLayout.close()
+            NavHostFragment.findNavController(this).navigate(
+                R.id.action_homeFragment_to_detailsFragment
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun onLocationChanged(p0: Location) {
+        try {
+            Log.d(TAG, " locationChanged LAT: ${p0.latitude}, LON: ${p0.longitude}")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun checkLocationPermission() {
+        try {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(
+                        requireActivity(),
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) &&
+                    ActivityCompat.shouldShowRequestPermissionRationale(
+                        requireActivity(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                ) {
+                    // Show an explanation to the user *asynchronously* -- don't block
+                    // this thread waiting for the user's response! After the user
+                    ActivityCompat.requestPermissions(
+                        requireActivity(),
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ),
+                        locationRequestCode
+                    )
+                } else {
+                    // We can request the permission.
+                    ActivityCompat.requestPermissions(
+                        requireActivity(), arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ),
+                        locationRequestCode
+                    )
+                }
+            } else {
+                // Permission previously granted
+                getCurrentKnownLocation()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /** We ignore this permission complain because we've already handled it before getting here */
+    @SuppressLint("MissingPermission")
+    private fun getCurrentKnownLocation() {
+        try {
+            fusedLocationProviderClient.getCurrentLocation(
+                Constants.priority,
+                Constants.cancellationTokenSource.token
+            ).addOnSuccessListener { location ->
+                if (location != null) {
+                    // Logic to handle location object
+                    Log.d("getCurrentLocation", "${location.latitude}, ${location.longitude}")
+                    checkConnectivityStatus(location.latitude.toString(), location.longitude.toString())
+                } else {
+                    Log.d("getCurrentLocation", "Returned Null")
+                    ReusableUtils.checkGPSifEnabled(requireActivity())
+                }
+            }.addOnFailureListener { exception ->
+                Log.d("getCurrentLocation", "location failed with exception: $exception")
+                // is location - GPS services enabled
+                ReusableUtils.checkGPSifEnabled(requireActivity())
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == locationRequestCode)
+            if (grantResults.isNotEmpty()
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED
+            ) {
+                // permission was granted, do location-related task you need to do.
+                if (ContextCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    getCurrentKnownLocation()
+                }
+            } else {
+                // permission denied! Disable the functionality that depends on this permission.
+                ReusableUtils.normalDialog(
+                    "Permission denied!",
+                    getString(R.string.location_permission_denied),
+                    requireContext()
+                )
+            }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!firstVisit) {
+            // do this for second visit only
+            Log.d(TAG, "triggeredAgain 2")
+            getCurrentKnownLocation()
+        } else {
+            Log.d(TAG, "triggeredAgain 1")
         }
     }
 }
