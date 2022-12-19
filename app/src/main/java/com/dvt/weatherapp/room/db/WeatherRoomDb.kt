@@ -8,12 +8,13 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.dvt.weatherapp.room.dao.CurrentDao
 import com.dvt.weatherapp.room.dao.ForecastDao
 import com.dvt.weatherapp.room.entities.CurrentWeatherModel
+import com.dvt.weatherapp.room.entities.FavouriteWeatherModel
 import com.dvt.weatherapp.room.entities.ForecastWeatherModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [CurrentWeatherModel::class, ForecastWeatherModel::class],
+    entities = [CurrentWeatherModel::class, ForecastWeatherModel::class, FavouriteWeatherModel::class],
     version = 1,
     exportSchema = false
 )
