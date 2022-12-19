@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.dvt.weatherapp.BaseApplication
@@ -86,6 +87,8 @@ class FavouriteFragment : Fragment(), OnMapReadyCallback, LocationListener {
                     Log.d("loadForecastFromRoom", "$it")
                     if (it != null && it.toMutableList().isNotEmpty()) {
                         populateFavouriteMarkers(it)
+                    } else {
+                        Toast.makeText(requireContext(), "You've not added favourite forecast!", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
