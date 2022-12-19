@@ -451,7 +451,7 @@ class HomeFragment : Fragment(), LocationListener {
 
     override fun onLocationChanged(p0: Location) {
         try {
-            Log.d("locationChanged", "LON: ${p0.longitude}, LAT: ${p0.latitude}")
+            Log.d(TAG, " locationChanged LAT: ${p0.latitude}, LON: ${p0.longitude}")
         } catch (e: Exception) {
             e.printStackTrace()
         }
