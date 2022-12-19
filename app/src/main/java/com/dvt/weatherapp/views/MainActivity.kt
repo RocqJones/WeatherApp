@@ -5,7 +5,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.dvt.weatherapp.BaseApplication
 import com.dvt.weatherapp.databinding.ActivityMainBinding
-import com.dvt.weatherapp.utils.ReusableUtils
 import com.dvt.weatherapp.viewmodels.CurrentViewModelFactory
 import com.dvt.weatherapp.viewmodels.ForecastViewModelFactory
 import com.dvt.weatherapp.viewmodels.ViewModelCurrent

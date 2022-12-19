@@ -8,11 +8,14 @@ import android.location.LocationListener
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,12 +35,15 @@ import com.dvt.weatherapp.utils.ReusableUtils
 import com.dvt.weatherapp.viewmodels.*
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.navigation.NavigationView
+import kotlin.collections.set
+
 
 class HomeFragment : Fragment(), LocationListener {
 
     private val TAG = "HomeFragment"
 
-    private lateinit var binding: FragmentHomeBinding
+    lateinit var binding: FragmentHomeBinding
 
     private val viewModel: ApiViewModel by viewModels {
         val repository = ApiCallRepository()
@@ -253,11 +259,11 @@ class HomeFragment : Fragment(), LocationListener {
     private fun displayCurrentToUI(it: List<CurrentWeatherModel>) {
         try {
             if (it.toMutableList().isNotEmpty()) {
-                binding.tvDegree.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)}℃"
-                binding.tvMinTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_min ?: 0.0)}℃"
-                binding.tvCurrentTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)}℃"
-                binding.tvMaxTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_max ?: 0.0)}℃"
-                binding.tvDescription.text = it[0].weatherMain
+                binding.appBarMain.tvDegree.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)}℃"
+                binding.appBarMain.tvMinTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_min ?: 0.0)}℃"
+                binding.appBarMain.tvCurrentTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temperature ?: 0.0)}℃"
+                binding.appBarMain.tvMaxTemp.text = "${ReusableUtils.convertKelvinToCelsius(it[0].temp_max ?: 0.0)}℃"
+                binding.appBarMain.tvDescription.text = it[0].weatherMain
 
                 when {
                     it[0].weatherMain.equals("Clouds") -> {
@@ -281,9 +287,10 @@ class HomeFragment : Fragment(), LocationListener {
 
     private fun cloudBg() {
         try {
-            binding.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_cloudy)
-            binding.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_cloudy))
-            binding.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_cloudy))
+            binding.appBarMain.linearLayout0.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_cloudy)
+            binding.appBarMain.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_cloudy)
+            binding.appBarMain.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_cloudy))
+            binding.appBarMain.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_cloudy))
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -291,9 +298,10 @@ class HomeFragment : Fragment(), LocationListener {
 
     private fun rainBb() {
         try {
-            binding.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_rainy)
-            binding.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_rainy))
-            binding.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_rainy))
+            binding.appBarMain.linearLayout0.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_rainy)
+            binding.appBarMain.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_rainy)
+            binding.appBarMain.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_rainy))
+            binding.appBarMain.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_rainy))
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -301,9 +309,10 @@ class HomeFragment : Fragment(), LocationListener {
 
     private fun sunnyBg() {
         try {
-            binding.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_sunny)
-            binding.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_sunny))
-            binding.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_sunny))
+            binding.appBarMain.linearLayout0.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_sunny)
+            binding.appBarMain.linearLayout1.background = ContextCompat.getDrawable(requireContext(), R.drawable.forest_sunny)
+            binding.appBarMain.linearLayout2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_sunny))
+            binding.appBarMain.rvForecast.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_sunny))
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -314,8 +323,8 @@ class HomeFragment : Fragment(), LocationListener {
         try {
             when {
                 it.toMutableList().isNotEmpty() -> {
-                    binding.rvForecast.layoutManager = LinearLayoutManager(context)
-                    binding.rvForecast.adapter = AdapterForecast(
+                    binding.appBarMain.rvForecast.layoutManager = LinearLayoutManager(context)
+                    binding.appBarMain.rvForecast.adapter = AdapterForecast(
                         it, requireContext(),
                         object : ForecastWeatherListener {
                             override fun onResponse(model: ForecastWeatherModel, i: Int) {
@@ -369,6 +378,62 @@ class HomeFragment : Fragment(), LocationListener {
 
     private fun setOnClickListeners() {
         try {
+            binding.appBarMain.drawerToggleIc.setOnClickListener { v ->
+                binding.drawerLayout.openDrawer(
+                    GravityCompat.START
+                )
+            }
+
+            val toggle = ActionBarDrawerToggle(
+                requireActivity(),
+                binding.drawerLayout,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close
+            )
+            binding.drawerLayout.addDrawerListener(toggle)
+            toggle.syncState()
+
+            setupDrawerContent(binding.navView)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun setupDrawerContent(navView: NavigationView) {
+        try {
+            navView.setNavigationItemSelectedListener { menuItem ->
+                selectDrawerItem(menuItem)
+                true
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun selectDrawerItem(menuItem: MenuItem) {
+        try {
+            when (menuItem.itemId) {
+                R.id.navigation_favourite ->
+                    moveToFavourites()
+                R.id.navigation_places ->
+                    moveToSearchPlaces()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun moveToFavourites() {
+        try {
+            Toast.makeText(requireContext(), "moveToFavourites Clicked!", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun moveToSearchPlaces() {
+        try {
+            Toast.makeText(requireContext(), "moveToSearchPlaces Clicked!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
         }
