@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">Weather App</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="_20">20℃</string>
     <string name="sunny">Sunny</string>
     <string name="min">min</string>
@@ -22,4 +20,5 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="api_key">AIzaSyDTwfJGnRMZwt-nF2kR111Is8Pf2huCaw4</string>
 </resources>

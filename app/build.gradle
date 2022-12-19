@@ -79,4 +79,10 @@ dependencies {
 
     // circleImageView
     implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+    // places
+    implementation 'com.google.android.libraries.places:places:3.0.0'
+
+    // Utilities for Maps SDK for Android (requires Google Play Services)
+    implementation 'com.google.maps.android:android-maps-utils:2.3.0'
 }

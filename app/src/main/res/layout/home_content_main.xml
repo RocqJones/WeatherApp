@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/linearLayout0"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/linearLayout0"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <ImageView
@@ -21,18 +21,18 @@
         android:id="@+id/linearLayout1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:layout_weight="1"
         android:gravity="center"
-        android:layout_weight="1">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/tvDegree"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/font_bold"
-            android:textSize="70sp"
             android:hint="@string/_20"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:textSize="70sp" />
 
         <TextView
             android:id="@+id/tvDescription"
@@ -40,10 +40,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
             android:fontFamily="@font/font_bold"
-            android:textSize="20sp"
             android:hint="@string/sunny"
+            android:textAllCaps="true"
             android:textColor="@color/white"
-            android:textAllCaps="true" />
+            android:textSize="20sp" />
 
     </LinearLayout>
 
@@ -56,8 +56,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:layout_weight="1"
+            android:gravity="center"
             android:orientation="vertical">
 
             <TextView
@@ -65,10 +65,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/font_bold"
-                android:textSize="16sp"
                 android:hint="@string/_20"
+                android:textAllCaps="true"
                 android:textColor="@color/white"
-                android:textAllCaps="true" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/tvMinDescription"
@@ -76,17 +76,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
                 android:fontFamily="@font/font_regular"
-                android:textSize="16sp"
                 android:text="@string/min"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:textSize="16sp" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:layout_weight="1"
+            android:gravity="center"
             android:orientation="vertical">
 
             <TextView
@@ -94,10 +94,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/font_bold"
-                android:textSize="16sp"
                 android:hint="@string/_20"
+                android:textAllCaps="true"
                 android:textColor="@color/white"
-                android:textAllCaps="true" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/tvCurrentDescription"
@@ -105,17 +105,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
                 android:fontFamily="@font/font_regular"
-                android:textSize="16sp"
                 android:text="@string/current"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:textSize="16sp" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:layout_weight="1"
+            android:gravity="center"
             android:orientation="vertical">
 
             <TextView
@@ -123,10 +123,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/font_bold"
-                android:textSize="16sp"
                 android:hint="@string/_20"
+                android:textAllCaps="true"
                 android:textColor="@color/white"
-                android:textAllCaps="true" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/tvMaxDescription"
@@ -134,9 +134,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
                 android:fontFamily="@font/font_regular"
-                android:textSize="16sp"
                 android:text="@string/max"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:textSize="16sp" />
 
         </LinearLayout>
 

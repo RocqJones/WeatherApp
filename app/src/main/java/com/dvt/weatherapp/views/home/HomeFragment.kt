@@ -442,7 +442,7 @@ class HomeFragment : Fragment(), LocationListener {
         try {
             binding.drawerLayout.close()
             NavHostFragment.findNavController(this).navigate(
-                R.id.action_homeFragment_to_detailsFragment
+                R.id.action_homeFragment_to_placesFragment
             )
         } catch (e: Exception) {
             e.printStackTrace()
