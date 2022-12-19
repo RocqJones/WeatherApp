@@ -1,18 +1,9 @@
 package com.dvt.weatherapp.views
 
-import android.app.Dialog
-import android.content.Context
-import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.location.LocationManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.Settings
-import android.widget.TextView
-import androidx.appcompat.widget.AppCompatButton
-import com.dvt.weatherapp.R
+import androidx.appcompat.app.AppCompatActivity
 import com.dvt.weatherapp.databinding.ActivityMainBinding
+import com.dvt.weatherapp.utils.ReusableUtils
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,15 +13,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        checkGPSifEnabled()
     }
 
     override fun onRestart() {
         super.onRestart()
-        checkGPSifEnabled()
+        ReusableUtils.checkGPSifEnabled(this)
     }
 
+    /*
     private fun checkGPSifEnabled() {
         try {
             val locationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -68,5 +58,5 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-    }
+    }*/
 }

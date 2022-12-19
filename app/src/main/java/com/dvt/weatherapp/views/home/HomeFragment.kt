@@ -439,10 +439,12 @@ class HomeFragment : Fragment(), LocationListener {
                     checkConnectivityStatus(location.latitude.toString(), location.longitude.toString())
                 } else {
                     Log.d("getCurrentLocation", "Returned Null")
+                    ReusableUtils.checkGPSifEnabled(requireContext())
                 }
             }.addOnFailureListener { exception ->
                 Log.d("getCurrentLocation", "location failed with exception: $exception")
                 // is location - GPS services enabled
+                ReusableUtils.checkGPSifEnabled(requireContext())
             }
         } catch (e: Exception) {
             e.printStackTrace()

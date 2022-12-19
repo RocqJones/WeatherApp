@@ -2,10 +2,13 @@ package com.dvt.weatherapp.utils
 
 import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.os.Build
+import android.provider.Settings
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -64,6 +67,45 @@ object ReusableUtils {
             dialog.window!!.attributes.windowAnimations = R.style.DialogAnimation_1
             dialog.show()
             dialog.setCanceledOnTouchOutside(false)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun checkGPSifEnabled(context: Context) {
+        try {
+            val locationManager = context.applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                val dialog = Dialog(context)
+                dialog.setContentView(R.layout.dialog_decision)
+                dialog.setCancelable(false)
+                dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+                val dialogTitle = dialog.findViewById<TextView>(R.id.dialogTitle)
+                val dialogMessage = dialog.findViewById<TextView>(R.id.dialogMessage)
+                val dialogCancelBtn = dialog.findViewById<AppCompatButton>(R.id.dialogCancelBtn)
+                val dialogConfirmBtn = dialog.findViewById<AppCompatButton>(R.id.dialogConfirmBtn)
+
+                dialogTitle.text = context.getString(R.string.gps_off)
+                dialogMessage.text = context.getString(R.string.gps_message)
+
+                dialogConfirmBtn.setOnClickListener {
+                    dialog.dismiss()
+                    context.applicationContext.startActivity(
+                        Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    )
+                }
+
+                dialogCancelBtn.setOnClickListener {
+                    dialog.dismiss()
+                }
+
+                dialog.window!!.attributes.windowAnimations = R.style.DialogAnimation_1
+                dialog.show()
+                dialog.setCanceledOnTouchOutside(false)
+            } else {
+                // getCurrentKnownLocation()
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
