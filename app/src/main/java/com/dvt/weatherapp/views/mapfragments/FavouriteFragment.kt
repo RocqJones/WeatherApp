@@ -62,7 +62,7 @@ class FavouriteFragment : Fragment(), OnMapReadyCallback, LocationListener {
 
     private fun setOnClickListeners() {
         try {
-            binding.backFab.setOnClickListener { }
+            binding.backFab.setOnClickListener { requireActivity().onBackPressed() }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -168,7 +168,7 @@ class FavouriteFragment : Fragment(), OnMapReadyCallback, LocationListener {
     private fun addCameraToMap(latLng: LatLng) {
         val cameraPosition = CameraPosition.Builder()
             .target(latLng)
-            .zoom(11f)
+            .zoom(8f)
             .build()
         mMap!!.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
     }
