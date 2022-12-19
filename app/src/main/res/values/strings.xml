@@ -18,7 +18,7 @@
     <string name="location_permission_denied">Location permission denied, all the functionality that depends on this permission will be disabled.</string>
     <string name="ok">OK</string>
     <string name="view_favourites">View Favourites</string>
-    <string name="search_places">Search Places</string>
+    <string name="search_places">Search Other Places</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
