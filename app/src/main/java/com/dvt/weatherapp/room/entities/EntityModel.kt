@@ -28,5 +28,6 @@ data class ForecastWeatherModel(
     @ColumnInfo(name = "temp_max") val temp_max: Double? = null,
     @ColumnInfo(name = "weatherMain") val weatherMain: String? = null,
     @ColumnInfo(name = "weatherDescription") val weatherDescription: String? = null,
-    @ColumnInfo(name = "forecastDate") val forecastDate: String? = null
+    @ColumnInfo(name = "forecastDate") val forecastDate: String? = null,
+    @ColumnInfo(name = "liked") val liked: String? = null // Yes or No
 )

@@ -208,7 +208,8 @@ class HomeFragment : Fragment() {
                     items.mainDetails?.temp_max,
                     items.weatherDetails?.get(0)?.main,
                     items.weatherDetails?.get(0)?.description,
-                    items.dt_txt
+                    items.dt_txt,
+                    "No"
                 )
                 viewModelForecast.insert(forecastWeatherModel)
             }
