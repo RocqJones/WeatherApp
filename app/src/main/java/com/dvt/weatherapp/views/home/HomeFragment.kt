@@ -62,6 +62,8 @@ class HomeFragment : Fragment(), LocationListener {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val locationRequestCode = 99
 
+    private var firstVisit = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -73,6 +75,8 @@ class HomeFragment : Fragment(), LocationListener {
         setOnClickListeners()
 
         loadFromRoom()
+
+        firstVisit = true
 
         return binding.root
     }
@@ -439,12 +443,12 @@ class HomeFragment : Fragment(), LocationListener {
                     checkConnectivityStatus(location.latitude.toString(), location.longitude.toString())
                 } else {
                     Log.d("getCurrentLocation", "Returned Null")
-                    ReusableUtils.checkGPSifEnabled(requireContext())
+                    ReusableUtils.checkGPSifEnabled(requireActivity())
                 }
             }.addOnFailureListener { exception ->
                 Log.d("getCurrentLocation", "location failed with exception: $exception")
                 // is location - GPS services enabled
-                ReusableUtils.checkGPSifEnabled(requireContext())
+                ReusableUtils.checkGPSifEnabled(requireActivity())
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -477,5 +481,16 @@ class HomeFragment : Fragment(), LocationListener {
                     requireContext()
                 )
             }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!firstVisit) {
+            // do this for second visit only
+            Log.d(TAG, "triggeredAgain 2")
+            getCurrentKnownLocation()
+        } else {
+            Log.d(TAG, "triggeredAgain 1")
+        }
     }
 }

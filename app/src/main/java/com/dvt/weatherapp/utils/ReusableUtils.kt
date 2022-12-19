@@ -74,7 +74,7 @@ object ReusableUtils {
 
     fun checkGPSifEnabled(context: Context) {
         try {
-            val locationManager = context.applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 val dialog = Dialog(context)
                 dialog.setContentView(R.layout.dialog_decision)
@@ -91,7 +91,7 @@ object ReusableUtils {
 
                 dialogConfirmBtn.setOnClickListener {
                     dialog.dismiss()
-                    context.applicationContext.startActivity(
+                    context.startActivity(
                         Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                     )
                 }
